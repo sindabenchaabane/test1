@@ -190,10 +190,16 @@ function placeobstacle(){
    }
 
 
-function changePersoImg(){
-    //get from persoImgArray at index persoIndex the current img
-    //increase index
-    //if img exceeds the length of the array then reset to 0
+function changePersoImg1(){
+    if (gameOver){ 
+         return;
+    }
+    persoIndex++;
+    if (persoIndex >= persoArray.length){
+        persoIndex = 0;
+    }
+    currentPersoImg = persoArray[persoIndex];
+
 }
 
 function detectCollision(a,b){
