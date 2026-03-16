@@ -1,0 +1,15 @@
+body {
+    font-family : 'Courier New', Courier,monospace;
+    text-align : center;
+ 
+ 
+ }
+ 
+ 
+ #board {
+    background-color: lightcoral;
+    border-bottom: 1px solid black;
+ 
+ 
+ }
+ 
