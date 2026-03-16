@@ -92,61 +92,48 @@ window.onload = function(){
 //context.fillStyle = "green";
 //context.fillRect(perso.x,perso.y,perso.width,perso.height);
 
-
 persoImg1.onload = function(){
 context.drawImage(persoImg1,perso.x,perso.y,perso.width,perso.height);
 }
 
-
 requestAnimationFrame(update);
-setInterval(placeobstacle,1000); // 1000 milliseconds = 1 second
+setInterval(placeobstacle,100); // 1000 milliseconds = 1 second
 }
 
 let frameCount = 0;
 
-function update(){
-   requestAnimationFrame(update);
-   context.clearRect(0,0,board.width,board.height);
+function update() {
+    if (gameOver) return; // On arrête tout si c'est fini
 
-   frameCount++;
-   if (frameCount % 5 === 0) {
-       persoIndex=(persoIndex + 1) % persoArray.length; // Cycle through perso images
-       currentPersoImg = persoArray[persoIndex];
-   }
-
-   // perso
-   velocityY += gravity;
-   perso.y = Math.min(perso.y + velocityY,persoY); //apply gravity
-   context.drawImage(persoImg1,persoX,persoY,persoWidth,persoHeight);
-   // TODO here use currentPersoImg1 instead of persoImg1
-   
-   // obstacle
-   for (let i = 0; i < obstacleArray.length; i++){
-       let obstacle = obstacleArray[i];
-       obstacle.x += velocityX;
-       context.drawImage(obstacle.img,obstacle.x,obstacle.y,obstacle.width,obstacle.height);
-       if (detectCollision(perso,obstacle)){
-           ganeOver = true;
-           persoImg1.onload = function(){
-               context.drawImage(persoImg1,perso.x,perso.y,perso.width,perso.height);
-           }
-       }
-
-
-   }
-
-   if (gameOver) return; // Arrête le dessin si Game Over
-    
     requestAnimationFrame(update);
-    context.clearRect(0, 0, board.width, board.height);
+    context.clearRect(0, 0, board.width, board.height); // Efface l'écran une seule fois
 
-    // Physique du personnage
+    // 1. Physique (Gravité)
     velocityY += gravity;
-    perso.y = Math.min(perso.y + velocityY, persoY); // Applique la gravité
+    perso.y = Math.min(perso.y + velocityY, persoY); 
 
-    // DESSIN DU PERSO : Utilise currentPersoImg et perso.y
+    // 2. Animation (Changement d'image)
+    // On utilise le modulo (%) pour boucler sur l'index de 0 à 3
+    frameCount++;
+    if (frameCount % 10 === 0) { // Change d'image toutes les 10 frames
+        persoIndex = (persoIndex + 1) % persoArray.length;
+        currentPersoImg = persoArray[persoIndex];
+    }
+
+    // 3. DESSIN DU PERSONNAGE
+    // IMPORTANT : On utilise currentPersoImg et perso.y
     context.drawImage(currentPersoImg, perso.x, perso.y, perso.width, perso.height);
 
+    // 4. Obstacles
+    for (let i = 0; i < obstacleArray.length; i++) {
+        let obstacle = obstacleArray[i];
+        obstacle.x += velocityX;
+        context.drawImage(obstacle.img, obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+
+        if (detectCollision(perso, obstacle)) {
+            gameOver = true;
+        }
+    }
 }
 
 
