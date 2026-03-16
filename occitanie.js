@@ -79,40 +79,36 @@ window.onload = function(){
 
 
    // TODO HERE add setInterval function calling function to change persoImg
-   setInterval(changePersoImg1, 100); // 100 milliseconds
-
 
    document.addEventListener("keydown",movePerso)
    // TODO add event listener
 
-   this.requestAnimationFrame(update);
-   setInterval(placeobstacle,70); // 1000 milliseconds = 1 second
+   requestAnimationFrame(update);
+   setInterval(placeobstacle,1000); // 1000 milliseconds = 1 second
 
 // draw initial perso
 //context.fillStyle = "green";
 //context.fillRect(perso.x,perso.y,perso.width,perso.height);
 
 
-persoImg1.onload = function(){
-context.drawImage(persoImg1,perso.x,perso.y,perso.width,perso.height);
-}
-
-
-requestAnimationFrame(update);
-setInterval(placeobstacle,1000); // 1000 milliseconds = 1 second
 }
 
 let frameCount = 0;
 
 function update(){
-   requestAnimationFrame(update);
-   context.clearRect(0,0,board.width,board.height);
+    if (gameOver){
+        context.fillText ("GAME OVER", boardWidth/2 - 50, boardHeight/2);
+        return;
+    }
+    
+    requestAnimationFrame(update);
+    context.clearRect(0,0,board.width,board.height);
 
-   frameCount++;
-   if (frameCount % 5 === 0) {
-       persoIndex=(persoIndex + 1) % persoArray.length; // Cycle through perso images
-       currentPersoImg = persoArray[persoIndex];
-   }
+    frameCount++;
+    if (frameCount % 5 === 0) {
+        persoIndex=(persoIndex + 1) % persoArray.length; // Cycle through perso images
+        currentPersoImg = persoArray[persoIndex];
+    }
 
    // perso
    velocityY += gravity;
@@ -126,28 +122,17 @@ function update(){
        obstacle.x += velocityX;
        context.drawImage(obstacle.img,obstacle.x,obstacle.y,obstacle.width,obstacle.height);
        if (detectCollision(perso,obstacle)){
-           ganeOver = true;
-           persoImg1.onload = function(){
-               context.drawImage(persoImg1,perso.x,perso.y,perso.width,perso.height);
+           gameOver = true;
            }
        }
 
+    context.fillStyle = "black";
+    context.font = "20px sans-serif";
+    score++;
+    context.fillText(score, 5, 20);
 
    }
-
-   if (gameOver) return; // Arrête le dessin si Game Over
-    
-    requestAnimationFrame(update);
-    context.clearRect(0, 0, board.width, board.height);
-
-    // Physique du personnage
-    velocityY += gravity;
-    perso.y = Math.min(perso.y + velocityY, persoY); // Applique la gravité
-
-    // DESSIN DU PERSO : Utilise currentPersoImg et perso.y
-    context.drawImage(currentPersoImg, perso.x, perso.y, perso.width, perso.height);
-
-}
+   
 
 
 function movePerso(e){
