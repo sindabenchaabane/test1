@@ -4,7 +4,6 @@ let boardWidth = 750;
 let boardHeight = 250;
 let context;
 
-
 //Personnage
 let persoWidth = 88;
 let persoHeight = 94;
@@ -28,12 +27,7 @@ let perso = {
    height : persoHeight
 };
 
-
-
-
 // Obstacle
-
-
 let obstacleArray = []
 let chateauHeight = 40;
 let chateauWidth = 40;
@@ -42,16 +36,12 @@ let swordHeight = 40;
 let pontWidth = 40;
 let pontHeight= 40;
 
-
 let chateauX = boardWidth;
 let chateauY = boardHeight - chateauHeight;
 let swordX = boardWidth;
 let swordY = boardHeight - swordHeight;
 let pontX = boardWidth;
 let pontY = boardHeight - pontHeight;
-
-
-
 
 let chateauImg = new Image();
 chateauImg.src = "./img/chateau1.png";
@@ -60,7 +50,6 @@ swordImg.src = "./img/sword.png"
 let pontImg = new Image ();
 pontImg.src = "./img/pont.png";
 
-
 //physics
 let velocityX = -8 // obstacle moving left speed
 let velocityY = 0;
@@ -68,71 +57,49 @@ let gravity = .4;
 let gameOver = false;
 let score = 0;
 
-
-
-
 window.onload = function(){
    board = this.document.getElementById("board");
    board.height = boardHeight;
    board.width = boardWidth;
    context = board.getContext("2d");//used for drawing on the board
 
+    persoImg1.onload = function(){
+    context.drawImage(persoImg1,perso.x,perso.y,perso.width,perso.height);
+    }
 
-   // TODO HERE add setInterval function calling function to change persoImg
-
-   document.addEventListener("keydown",movePerso)
-   // TODO add event listener
-
-   requestAnimationFrame(update);
-   setInterval(placeobstacle,1000); // 1000 milliseconds = 1 second
-
-// draw initial perso
-//context.fillStyle = "green";
-//context.fillRect(perso.x,perso.y,perso.width,perso.height);
-
-
+    requestAnimationFrame(update);
+    setInterval(placeobstacle,1500); // 1000 milliseconds = 1 second
+    setInterval(changePersoImg1, 100); // 100 milliseconds
+    document.addEventListener("keydown",movePerso)
 }
 
-let frameCount = 0;
-
 function update(){
-    if (gameOver){
-        context.fillText ("GAME OVER", boardWidth/2 - 50, boardHeight/2);
-        return;
-    }
-    
-    requestAnimationFrame(update);
-    context.clearRect(0,0,board.width,board.height);
+   requestAnimationFrame(update);
+   context.clearRect(0,0,board.width,board.height);
 
-    frameCount++;
-    if (frameCount % 5 === 0) {
-        persoIndex=(persoIndex + 1) % persoArray.length; // Cycle through perso images
-        currentPersoImg = persoArray[persoIndex];
-    }
-
-   // perso
-   velocityY += gravity;
-   perso.y = Math.min(perso.y + velocityY,persoY); //apply gravity
-   context.drawImage(persoImg1,persoX,persoY,persoWidth,persoHeight);
-   // TODO here use currentPersoImg1 instead of persoImg1
-   
    // obstacle
+   console.log(obstacleArray.length)
    for (let i = 0; i < obstacleArray.length; i++){
        let obstacle = obstacleArray[i];
        obstacle.x += velocityX;
        context.drawImage(obstacle.img,obstacle.x,obstacle.y,obstacle.width,obstacle.height);
        if (detectCollision(perso,obstacle)){
-           gameOver = true;
+           ganeOver = true;
+           persoImg1.onload = function(){
+               context.drawImage(persoImg1,perso.x,perso.y,perso.width,perso.height);
            }
        }
-
-    context.fillStyle = "black";
-    context.font = "20px sans-serif";
-    score++;
-    context.fillText(score, 5, 20);
-
    }
-   
+
+   if (gameOver) return; // Arrête le dessin si Game Over
+    
+    // Physique du personnage
+    velocityY += gravity;
+    perso.y = Math.min(perso.y + velocityY, persoY); // Applique la gravité
+
+    // DESSIN DU PERSO : Utilise currentPersoImg et perso.y
+    context.drawImage(currentPersoImg, perso.x, perso.y, perso.width, perso.height);
+}
 
 
 function movePerso(e){
@@ -150,9 +117,10 @@ function movePerso(e){
 
 function placeobstacle(){
    //place obstacle
+
+   console.log("in place obstacle")
   
    let placeobstacleChance = Math.random();//0-0.9999
-
 
    if (placeobstacleChance > .90) { //10% you get pont
        let obstacle = {
@@ -171,8 +139,6 @@ function placeobstacle(){
        width : swordWidth,
        height : swordHeight}
        obstacleArray.push(obstacle);
-
-
    }
    else if(placeobstacleChance >.50){ //50% you get chateau
        let obstacle = {
@@ -187,9 +153,7 @@ function placeobstacle(){
        obstacleArray.shift(); // removes the first element for the Array 
   
    }
-
-
-   }
+}
 
 
 function changePersoImg1(){
