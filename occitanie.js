@@ -72,8 +72,17 @@ window.onload = function(){
     setInterval(changePersoImg1, 100); // 100 milliseconds
     document.addEventListener("keydown",movePerso)
 }
-
+/*
 function update(){
+
+    if (gameOver){
+     // On affiche le message et on arrête l'exécution de cette frame
+        context.fillStyle = "red";
+        context.font = "40px sans-serif";
+        context.fillText("GAME OVER", boardWidth / 3, boardHeight / 2);
+        return; 
+    }   
+    
    requestAnimationFrame(update);
    context.clearRect(0,0,board.width,board.height);
 
@@ -83,8 +92,10 @@ function update(){
        let obstacle = obstacleArray[i];
        obstacle.x += velocityX;
        context.drawImage(obstacle.img,obstacle.x,obstacle.y,obstacle.width,obstacle.height);
+       
+       //Vérification de la collision
        if (detectCollision(perso,obstacle)){
-           ganeOver = true;
+           gameOver = true;
            persoImg1.onload = function(){
                context.drawImage(persoImg1,perso.x,perso.y,perso.width,perso.height);
            }
@@ -110,7 +121,47 @@ function update(){
     context.drawImage(currentPersoImg, perso.x, perso.y, perso.width, perso.height);
 }
 
+*/
 
+function update() {
+    if (gameOver) {
+        // On affiche le message et on arrête l'exécution de cette frame
+        context.fillStyle = "red";
+        context.font = "40px sans-serif";
+        context.fillText("GAME OVER", boardWidth / 3, boardHeight / 2);
+        return; 
+    }
+
+    requestAnimationFrame(update);
+    context.clearRect(0, 0, board.width, board.height);
+
+    // Obstacles
+    for (let i = 0; i < obstacleArray.length; i++) {
+        let obstacle = obstacleArray[i];
+        obstacle.x += velocityX;
+        context.drawImage(obstacle.img, obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+
+        // Vérification de la collision
+        if (detectCollision(perso, obstacle)) {
+            gameOver = true;
+        }
+    }
+
+    // Physique du personnage
+    velocityY += gravity;
+    perso.y = Math.min(perso.y + velocityY, persoY); 
+
+    // Dessin du personnage (on utilise l'image actuelle définie par l'intervalle)
+    context.drawImage(currentPersoImg, perso.x, perso.y, perso.width, perso.height);
+    
+    // Score (optionnel mais recommandé)
+    context.fillStyle = "black";
+    context.font = "20px sans-serif";
+    score++;
+    context.fillText("Score: " + score, 5, 20);
+}
+
+/*
 function movePerso(e){
    console.log('executing the miovePerso function outside for loop')
    if (gameOver){
@@ -123,6 +174,18 @@ function movePerso(e){
    }
 }
 
+*/
+function movePerso(e) {
+    if (gameOver) {
+        // Relance le jeu si on appuie sur une touche après un Game Over
+        location.reload(); 
+        return;
+    }
+    
+    if ((e.code == "Space" || e.code == "ArrowUp") && perso.y == persoY) {
+        velocityY = -10;
+    }
+}
 
 function placeobstacle(){
    //place obstacle
