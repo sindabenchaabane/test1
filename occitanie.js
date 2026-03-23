@@ -1,7 +1,7 @@
 // board
 let board;
 let boardWidth = 750;
-let boardHeight = 250;
+let boardHeight = 450;
 let context;
 
 //Personnage
@@ -72,56 +72,26 @@ window.onload = function(){
     setInterval(changePersoImg1, 100); // 100 milliseconds
     document.addEventListener("keydown",movePerso)
 }
-/*
-function update(){
 
-    if (gameOver){
-     // On affiche le message et on arrête l'exécution de cette frame
-        context.fillStyle = "red";
-        context.font = "40px sans-serif";
-        context.fillText("GAME OVER", boardWidth / 3, boardHeight / 2);
-        return; 
-    }   
-    
-   requestAnimationFrame(update);
-   context.clearRect(0,0,board.width,board.height);
+function updateBackground() {
+    let bgUrl = "";
 
-   // obstacle
-   console.log(obstacleArray.length)
-   for (let i = 0; i < obstacleArray.length; i++){
-       let obstacle = obstacleArray[i];
-       obstacle.x += velocityX;
-       context.drawImage(obstacle.img,obstacle.x,obstacle.y,obstacle.width,obstacle.height);
-       
-       //Vérification de la collision
-       if (detectCollision(perso,obstacle)){
-           gameOver = true;
-           persoImg1.onload = function(){
-               context.drawImage(persoImg1,perso.x,perso.y,perso.width,perso.height);
-           }
-       }
-   }
-
-   if (gameOver) return; // Arrête le dessin si Game Over
-    
-    // Physique du personnage
-    velocityY += gravity;
-    perso.y = Math.min(perso.y + velocityY, persoY); 
-
-    // 2. Animation (Changement d'image)
-    // On utilise le modulo (%) pour boucler sur l'index de 0 à 3
-    frameCount++;
-    if (frameCount % 10 === 0) { // Change d'image toutes les 10 frames
-        persoIndex = (persoIndex + 1) % persoArray.length;
-        currentPersoImg = persoArray[persoIndex];
+    // On vérifie les paliers du plus haut au plus bas
+    if (score >= 900) {
+        bgUrl = "url('./img/fond3.jpg')"; // Le dernier fond (fixe après 900)
+    } else if (score >= 600) {
+        bgUrl = "url('./img/fond2.jpg')";
+    } else if (score >= 300) {
+        bgUrl = "url('./img/fond1.jpg')";
     }
 
-    // 3. DESSIN DU PERSONNAGE
-    // IMPORTANT : On utilise currentPersoImg et perso.y
-    context.drawImage(currentPersoImg, perso.x, perso.y, perso.width, perso.height);
+    // Applique le changement uniquement si on a atteint un palier
+    if (bgUrl !== "") {
+        board.style.backgroundImage = bgUrl;
+        board.style.backgroundSize = "cover"; 
+        board.style.backgroundRepeat = "no-repeat";
+    }
 }
-
-*/
 
 function update() {
     if (gameOver) {
@@ -158,6 +128,9 @@ function update() {
     context.fillStyle = "black";
     context.font = "20px sans-serif";
     score++;
+
+    updateBackground();
+
     // Augmente la vitesse tous les 500 points
     if (score % 500 == 0) {
     velocityX -= 0.2; // Devient de plus en plus négatif (donc plus rapide vers la gauche)
