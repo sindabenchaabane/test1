@@ -1,7 +1,7 @@
 // board
 let board;
 let boardWidth = 750;
-let boardHeight = 250;
+let boardHeight = 450;
 let context;
 
 //Personnage
@@ -66,6 +66,7 @@ let velocityY = 0;
 let gravity = .4;
 let gameOver = false;
 let score = 0;
+let highScore = localStorage.getItem("highScore") || 0; // On récupère le record enregistré
 
 window.onload = function(){
    board = this.document.getElementById("board");
@@ -81,6 +82,26 @@ window.onload = function(){
     setInterval(placeobstacle,1500); // 1000 milliseconds = 1 second
     setInterval(changePersoImg1, 100); // 100 milliseconds
     document.addEventListener("keydown",movePerso)
+}
+
+function updateBackground() {
+    let bgUrl = "";
+
+    // On vérifie les paliers du plus haut au plus bas
+    if (score >= 900) {
+        bgUrl = "url('./img/fond3.jpg')"; // Le dernier fond (fixe après 900)
+    } else if (score >= 600) {
+        bgUrl = "url('./img/fond2.jpg')";
+    } else if (score >= 300) {
+        bgUrl = "url('./img/fond1.jpg')";
+    }
+
+    // Applique le changement uniquement si on a atteint un palier
+    if (bgUrl !== "") {
+        board.style.backgroundImage = bgUrl;
+        board.style.backgroundSize = "cover"; 
+        board.style.backgroundRepeat = "no-repeat";
+    }
 }
 
 function update(){
@@ -160,16 +181,40 @@ function update(){
    context.fillText("🌸 Esquives : " + shieldCount, 10, 25);
 }
 
-*/
-
 function update() {
     if (gameOver) {
-        // On affiche le message et on arrête l'exécution de cette frame
-        context.fillStyle = "red";
-        context.font = "40px sans-serif";
-        context.fillText("GAME OVER", boardWidth / 3, boardHeight / 2);
-        return; 
-    }
+        // MISE À JOUR DU RECORD 
+        if (score > highScore) {
+            highScore = score;
+            localStorage.setItem("highScore", highScore);
+        }
+        // --- DESIGN DE L'ÉCRAN DE FIN ---
+        context.fillStyle = "rgba(0, 0, 0, 0.7)"; // Fond sombre semi-transparent
+        context.fillRect(0, 0, boardWidth, boardHeight);
+
+        context.textAlign = "center";
+        context.font = "bold 60px sans-serif";
+        
+        // Ombre portée du texte
+        context.fillStyle = "black";
+        context.fillText("GAME OVER", boardWidth / 2 + 4, boardHeight / 2);
+        // Texte rouge
+        context.fillStyle = "#FF3131"; 
+        context.fillText("GAME OVER", boardWidth / 2, boardHeight / 2 - 4);
+
+        // Sous-texte
+        context.font = "bold 20px sans-serif";
+        context.fillStyle = "white";
+        context.fillText("Score Final : " + score, boardWidth / 2, boardHeight / 2 + 50);
+        context.fillStyle = "#FFD700"; // Or
+        context.fillText("Meilleur Record : " + highScore, boardWidth / 2, boardHeight / 2 + 80);
+        
+        context.font = "italic 16px sans-serif";
+        context.fillStyle = "#ccc";
+        context.fillText("Appuyez sur une touche pour recommencer", boardWidth / 2, boardHeight / 2 + 115);
+        
+        return;
+    } // <--- IL MANQUAIT CETTE ACCOULADE POUR FERMER LE IF
 
     requestAnimationFrame(update);
     context.clearRect(0, 0, board.width, board.height);
@@ -180,28 +225,31 @@ function update() {
         obstacle.x += velocityX;
         context.drawImage(obstacle.img, obstacle.x, obstacle.y, obstacle.width, obstacle.height);
 
-        // Vérification de la collision
         if (detectCollision(perso, obstacle)) {
             gameOver = true;
         }
     }
 
-    // Physique du personnage
+    // Physique
     velocityY += gravity;
     perso.y = Math.min(perso.y + velocityY, persoY); 
 
-    // Dessin du personnage (on utilise l'image actuelle définie par l'intervalle)
+    // Dessin perso
     context.drawImage(currentPersoImg, perso.x, perso.y, perso.width, perso.height);
     
-    // Score (optionnel mais recommandé)
+    // Score
     context.fillStyle = "black";
     context.font = "20px sans-serif";
     score++;
+
+    updateBackground();
+
     // Augmente la vitesse tous les 500 points
     if (score % 500 == 0) {
-    velocityX -= 0.2; // Devient de plus en plus négatif (donc plus rapide vers la gauche)
+        velocityX -= 0.2; 
     }
     context.fillText("Score: " + score, 5, 20);
+    context.fillText("Best: " + highScore, 5, 45); 
 }
 
 /*
@@ -311,5 +359,5 @@ function detectCollision(a, b) {
     return a.x + padding < b.x + b.width - padding &&   // Le nez du perso touche l'arrière de l'obstacle
            a.x + a.width - padding > b.x + padding &&   // L'arrière du perso touche le nez de l'obstacle
            a.y + padding < b.y + b.height - padding &&  // Le haut du perso touche le bas
-           a.y + a.height - padding > b.y + padding;    // Le bas du perso touche le haut
-}
+           a.y + a.height - padding > b.y + padding;    // Le bas du perso touche le haut 
+           }
