@@ -158,6 +158,10 @@ function update() {
     context.fillStyle = "black";
     context.font = "20px sans-serif";
     score++;
+    // Augmente la vitesse tous les 500 points
+    if (score % 500 == 0) {
+    velocityX -= 0.2; // Devient de plus en plus négatif (donc plus rapide vers la gauche)
+    }
     context.fillText("Score: " + score, 5, 20);
 }
 
@@ -187,44 +191,37 @@ function movePerso(e) {
     }
 }
 
-function placeobstacle(){
-   //place obstacle
+function placeobstacle() {
+    if (gameOver) return;
 
-   console.log("in place obstacle")
-  
-   let placeobstacleChance = Math.random();//0-0.9999
+    let obstacle = {
+        img: null,
+        x: boardWidth,
+        y: 0,
+        width: 40,
+        height: 40
+    };
 
-   if (placeobstacleChance > .90) { //10% you get pont
-       let obstacle = {
-       img : pontImg,
-       x : pontX,
-       y : pontY,
-       width : pontWidth,
-       height :pontHeight}
-       obstacleArray.push(obstacle)
-   }
-   else if (placeobstacleChance > .70){ //30% you get sword
-       let obstacle = {
-       img : swordImg,
-       x : swordX,
-       y : swordY,
-       width : swordWidth,
-       height : swordHeight}
-       obstacleArray.push(obstacle);
-   }
-   else if(placeobstacleChance >.50){ //50% you get chateau
-       let obstacle = {
-       img : chateauImg,
-       x : chateauX,
-       y : chateauY,
-       width : chateauWidth,
-       height : chateauHeight}
-       obstacleArray.push(obstacle);
-       }
-   if (obstacleArray.length > 5){
-       obstacleArray.shift(); // removes the first element for the Array 
-  
-   }
+    let r = Math.random(); // Génère un nombre entre 0 et 1
+
+    // On définit quel obstacle apparaît selon le score ou la chance
+    if (r > 0.85) { // 15% de chance
+        obstacle.img = pontImg;
+        obstacle.y = boardHeight - pontHeight;
+    } else if (r > 0.60) { // 25% de chance
+        obstacle.img = swordImg;
+        obstacle.y = boardHeight - swordHeight;
+    } else { // 60% de chance (le plus commun)
+        obstacle.img = chateauImg;
+        obstacle.y = boardHeight - chateauHeight;
+    }
+
+    obstacleArray.push(obstacle);
+
+    // Nettoyage : on ne garde que les obstacles utiles
+    if (obstacleArray.length > 10) {
+        obstacleArray.shift();
+    }
 }
 
 
@@ -232,21 +229,28 @@ function changePersoImg1(){
     if (gameOver){ 
          return;
     }
-    persoIndex++;
 
-    if (persoIndex >= persoArray.length){
+    // NOUVELLE RÈGLE : On n'anime que si le personnage est AU SOL (pour éviter bug)
+    // perso.y == persoY signifie qu'il est sur sa position de base (le sol)
+    if (perso.y === persoY) {
+        persoIndex++;
 
-        persoIndex = 0;
+        if (persoIndex >= persoArray.length){
+            persoIndex = 0;
+        }
+        currentPersoImg = persoArray[persoIndex];
+    } else {
+        // Si il est en l'air, on force l'image de saut
+        currentPersoImg = persoArray[0]; 
     }
-    currentPersoImg = persoArray[persoIndex];
-
 }
 
-function detectCollision(a,b){
-   return a.x < b.x + b.width &&
-          a.x + a.width > b.x &&
-          a.y < b.y + b.height &&
-          a.y + a.height > b.y;
-
-
+function detectCollision(a, b) {
+    // On réduit la zone de collision de 10 pixels de chaque côté
+    let padding = 10; 
+    
+    return a.x + padding < b.x + b.width - padding &&   // Le nez du perso touche l'arrière de l'obstacle
+           a.x + a.width - padding > b.x + padding &&   // L'arrière du perso touche le nez de l'obstacle
+           a.y + padding < b.y + b.height - padding &&  // Le haut du perso touche le bas
+           a.y + a.height - padding > b.y + padding;    // Le bas du perso touche le haut
 }
