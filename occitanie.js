@@ -36,6 +36,16 @@ let swordHeight = 40;
 let pontWidth = 40;
 let pontHeight= 40;
 
+//viollette
+let violetteImg = new Image();
+violetteImg.src = "./img/violette.png"; // adapte le chemin
+let violetteWidth = 70;
+let violetteHeight = 70;
+let violette = null; // null = pas visible
+let violetteActive = false;
+let shieldCount = 0; // nombre d'esquives disponibles (max 2)
+
+
 let chateauX = boardWidth;
 let chateauY = boardHeight - chateauHeight;
 let swordX = boardWidth;
@@ -72,7 +82,7 @@ window.onload = function(){
     setInterval(changePersoImg1, 100); // 100 milliseconds
     document.addEventListener("keydown",movePerso)
 }
-/*
+
 function update(){
 
     if (gameOver){
@@ -84,6 +94,7 @@ function update(){
     }   
     
    requestAnimationFrame(update);
+   if (paused) return; // Arrête le dessin si le jeu est en pause 
    context.clearRect(0,0,board.width,board.height);
 
    // obstacle
@@ -95,9 +106,15 @@ function update(){
        
        //Vérification de la collision
        if (detectCollision(perso,obstacle)){
-           gameOver = true;
-           persoImg1.onload = function(){
-               context.drawImage(persoImg1,perso.x,perso.y,perso.width,perso.height);
+           if (shieldCount > 0){
+               shieldCount--;
+               obstacleArray.splice(i, 1);
+               i--;
+           } else {
+               gameOver = true;
+               persoImg1.onload = function(){
+                   context.drawImage(persoImg1,perso.x,perso.y,perso.width,perso.height);
+               }
            }
        }
    }
@@ -106,7 +123,7 @@ function update(){
     
     // Physique du personnage
     velocityY += gravity;
-    perso.y = Math.min(perso.y + velocityY, persoY); 
+    perso.y = Math.min(perso.y + velocityY, persoY); // Applique la gravité
 
     // 2. Animation (Changement d'image)
     // On utilise le modulo (%) pour boucler sur l'index de 0 à 3
@@ -116,9 +133,31 @@ function update(){
         currentPersoImg = persoArray[persoIndex];
     }
 
-    // 3. DESSIN DU PERSONNAGE
-    // IMPORTANT : On utilise currentPersoImg et perso.y
+    // DESSIN DU PERSO : Utilise currentPersoImg et perso.y
     context.drawImage(currentPersoImg, perso.x, perso.y, perso.width, perso.height);
+     // Gestion de la violette
+   if (violetteActive && violette){
+       violette.x += velocityX;
+       context.drawImage(violetteImg, violette.x, violette.y, violette.width, violette.height);
+
+       // Attrapée par le perso
+       if (detectCollision(perso, violette)){
+           if (shieldCount < 2) shieldCount++;
+           violetteActive = false;
+           violette = null;
+       }
+
+       // Sort de l'écran sans être attrapée
+       if (violette && violette.x + violette.width < 0){
+           violetteActive = false;
+           violette = null;
+       }
+   }
+
+   // Affichage bouclier
+   context.fillStyle = "purple";
+   context.font = "18px Arial";
+   context.fillText("🌸 Esquives : " + shieldCount, 10, 25);
 }
 
 */
@@ -191,36 +230,56 @@ function movePerso(e) {
     }
 }
 
-function placeobstacle() {
-    if (gameOver) return;
 
-    let obstacle = {
-        img: null,
-        x: boardWidth,
-        y: 0,
-        width: 40,
-        height: 40
-    };
+function placeobstacle(){
+   //place obstacle
 
-    let r = Math.random(); // Génère un nombre entre 0 et 1
+   console.log("in place obstacle")
+  
+   let placeobstacleChance = Math.random();//0-0.9999
 
-    // On définit quel obstacle apparaît selon le score ou la chance
-    if (r > 0.85) { // 15% de chance
-        obstacle.img = pontImg;
-        obstacle.y = boardHeight - pontHeight;
-    } else if (r > 0.60) { // 25% de chance
-        obstacle.img = swordImg;
-        obstacle.y = boardHeight - swordHeight;
-    } else { // 60% de chance (le plus commun)
-        obstacle.img = chateauImg;
-        obstacle.y = boardHeight - chateauHeight;
-    }
+   if (placeobstacleChance > .90) { //10% you get pont
+       let obstacle = {
+       img : pontImg,
+       x : pontX,
+       y : pontY,
+       width : pontWidth,
+       height :pontHeight}
+       obstacleArray.push(obstacle)
+   }
+   else if (placeobstacleChance > .70){ //30% you get sword
+       let obstacle = {
+       img : swordImg,
+       x : swordX,
+       y : swordY,
+       width : swordWidth,
+       height : swordHeight}
+       obstacleArray.push(obstacle);
+   }
+   else if(placeobstacleChance >.50){ //50% you get chateau
+       let obstacle = {
+       img : chateauImg,
+       x : chateauX,
+       y : chateauY,
+       width : chateauWidth,
+       height : chateauHeight}
+       obstacleArray.push(obstacle);
+       }
+   if (obstacleArray.length > 5){
+       obstacleArray.shift(); // removes the first element for the Array 
+  
+   }
 
-    obstacleArray.push(obstacle);
-
-    // Nettoyage : on ne garde que les obstacles utiles
-    if (obstacleArray.length > 10) {
-        obstacleArray.shift();
+   //place violette
+   if (!violetteActive && Math.random() < 0.30) {
+        let randomY = boardHeight - violetteHeight - Math.floor(Math.random() * 150) - 30; // hauteur aléatoire
+        violette = {
+            x: boardWidth,
+            y: randomY,
+            width: violetteWidth,
+            height: violetteHeight
+        };
+        violetteActive = true;
     }
 }
 

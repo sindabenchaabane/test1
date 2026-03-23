@@ -11,6 +11,10 @@
    </head>
    <body>
        <h1>Chrome Occitanie Game  </h1>
-       <canvas id = "board"></canvas>
+       <div style="display: flex; gap: 10px; margin-bottom: 8px;">
+        <button id="stopBtn" onclick="togglePause()">⏸ Pause</button>
+        <button onclick="restartGame()">🔄 Recommencer</button>
+    </div>
+    <canvas id="board"></canvas>
    </body>
 </html>
