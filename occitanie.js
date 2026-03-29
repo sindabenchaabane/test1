@@ -1,363 +1,212 @@
-// board
+// Variables Globales
 let board;
 let boardWidth = 750;
 let boardHeight = 450;
 let context;
+let currentBg = "";
 
-//Personnage
+// Personnage
 let persoWidth = 88;
 let persoHeight = 94;
 let persoX = 50;
 let persoY = boardHeight - persoHeight;
-let persoImg1 = new Image();
-let persoImg2 = new Image () ;
-let persoImg3= new Image () ;
-let persoImg4 = new Image () ;
-persoImg1.src = "./img+/1.png";
-persoImg2.src = "./img+/2.png";
-persoImg3.src = "./img+/3.png";
-persoImg4.src = "./img+/4.png";
-let persoArray = [persoImg1, persoImg2, persoImg3, persoImg4]
-let persoIndex = 0 ;
-let currentPersoImg = persoArray[persoIndex]
-let perso = {
-   x : persoX,
-   y : persoY,
-   width : persoWidth,
-   height : persoHeight
-};
+let persoImg1 = new Image(); persoImg1.src = "./img+/1.png";
+let persoImg2 = new Image(); persoImg2.src = "./img+/2.png";
+let persoImg3 = new Image(); persoImg3.src = "./img+/3.png";
+let persoImg4 = new Image(); persoImg4.src = "./img+/4.png";
+let persoArray = [persoImg1, persoImg2, persoImg3, persoImg4];
+let persoIndex = 0;
+let currentPersoImg = persoArray[0];
+let perso = { x: persoX, y: persoY, width: persoWidth, height: persoHeight };
 
-// Obstacle
-let obstacleArray = []
-let chateauHeight = 40;
-let chateauWidth = 40;
-let swordWidth = 40;
-let swordHeight = 40;
-let pontWidth = 40;
-let pontHeight= 40;
+// Obstacles
+let obstacleArray = [];
+let chateauImg = new Image(); chateauImg.src = "./img/chateau1.png";
+let swordImg = new Image(); swordImg.src = "./img/sword.png";
+let pontImg = new Image(); pontImg.src = "./img/pont.png";
 
-//viollette
-let violetteImg = new Image();
-violetteImg.src = "./img/violette.png"; // adapte le chemin
+// Violette (Le Bonus)
+let violetteImg = new Image(); violetteImg.src = "./img/violette.png";
 let violetteWidth = 70;
 let violetteHeight = 70;
-let violette = null; // null = pas visible
+let violette = null;
 let violetteActive = false;
-let shieldCount = 0; // nombre d'esquives disponibles (max 2)
+let shieldCount = 0; // Tes esquives
 
-
-let chateauX = boardWidth;
-let chateauY = boardHeight - chateauHeight;
-let swordX = boardWidth;
-let swordY = boardHeight - swordHeight;
-let pontX = boardWidth;
-let pontY = boardHeight - pontHeight;
-
-let chateauImg = new Image();
-chateauImg.src = "./img/chateau1.png";
-let swordImg = new Image();
-swordImg.src = "./img/sword.png"
-let pontImg = new Image ();
-pontImg.src = "./img/pont.png";
-
-//physics
-let velocityX = -8 // obstacle moving left speed
+// Physics & Game State
+let velocityX = -8;
 let velocityY = 0;
 let gravity = .4;
 let gameOver = false;
 let score = 0;
-let highScore = localStorage.getItem("highScore") || 0; // On récupère le record enregistré
+let highScore = localStorage.getItem("highScore") || 0;
+let frameCount = 0; // Indispensable pour l'animation
+let shakeTime = 0;
 
-window.onload = function(){
-   board = this.document.getElementById("board");
-   board.height = boardHeight;
-   board.width = boardWidth;
-   context = board.getContext("2d");//used for drawing on the board
-
-    persoImg1.onload = function(){
-    context.drawImage(persoImg1,perso.x,perso.y,perso.width,perso.height);
-    }
+window.onload = function() {
+    board = document.getElementById("board");
+    board.height = boardHeight;
+    board.width = boardWidth;
+    context = board.getContext("2d");
 
     requestAnimationFrame(update);
-    setInterval(placeobstacle,1500); // 1000 milliseconds = 1 second
-    setInterval(changePersoImg1, 100); // 100 milliseconds
-    document.addEventListener("keydown",movePerso)
-}
-
-function updateBackground() {
-    let bgUrl = "";
-
-    // On vérifie les paliers du plus haut au plus bas
-    if (score >= 900) {
-        bgUrl = "url('./img/fond3.jpg')"; // Le dernier fond (fixe après 900)
-    } else if (score >= 600) {
-        bgUrl = "url('./img/fond2.jpg')";
-    } else if (score >= 300) {
-        bgUrl = "url('./img/fond1.jpg')";
-    }
-
-    // Applique le changement uniquement si on a atteint un palier
-    if (bgUrl !== "") {
-        board.style.backgroundImage = bgUrl;
-        board.style.backgroundSize = "cover"; 
-        board.style.backgroundRepeat = "no-repeat";
-    }
-}
-
-function update(){
-
-    if (gameOver){
-     // On affiche le message et on arrête l'exécution de cette frame
-        context.fillStyle = "red";
-        context.font = "40px sans-serif";
-        context.fillText("GAME OVER", boardWidth / 3, boardHeight / 2);
-        return; 
-    }   
-    
-   requestAnimationFrame(update);
-   if (paused) return; // Arrête le dessin si le jeu est en pause 
-   context.clearRect(0,0,board.width,board.height);
-
-   // obstacle
-   console.log(obstacleArray.length)
-   for (let i = 0; i < obstacleArray.length; i++){
-       let obstacle = obstacleArray[i];
-       obstacle.x += velocityX;
-       context.drawImage(obstacle.img,obstacle.x,obstacle.y,obstacle.width,obstacle.height);
-       
-       //Vérification de la collision
-       if (detectCollision(perso,obstacle)){
-           if (shieldCount > 0){
-               shieldCount--;
-               obstacleArray.splice(i, 1);
-               i--;
-           } else {
-               gameOver = true;
-               persoImg1.onload = function(){
-                   context.drawImage(persoImg1,perso.x,perso.y,perso.width,perso.height);
-               }
-           }
-       }
-   }
-
-   if (gameOver) return; // Arrête le dessin si Game Over
-    
-    // Physique du personnage
-    velocityY += gravity;
-    perso.y = Math.min(perso.y + velocityY, persoY); // Applique la gravité
-
-    // 2. Animation (Changement d'image)
-    // On utilise le modulo (%) pour boucler sur l'index de 0 à 3
-    frameCount++;
-    if (frameCount % 10 === 0) { // Change d'image toutes les 10 frames
-        persoIndex = (persoIndex + 1) % persoArray.length;
-        currentPersoImg = persoArray[persoIndex];
-    }
-
-    // DESSIN DU PERSO : Utilise currentPersoImg et perso.y
-    context.drawImage(currentPersoImg, perso.x, perso.y, perso.width, perso.height);
-     // Gestion de la violette
-   if (violetteActive && violette){
-       violette.x += velocityX;
-       context.drawImage(violetteImg, violette.x, violette.y, violette.width, violette.height);
-
-       // Attrapée par le perso
-       if (detectCollision(perso, violette)){
-           if (shieldCount < 2) shieldCount++;
-           violetteActive = false;
-           violette = null;
-       }
-
-       // Sort de l'écran sans être attrapée
-       if (violette && violette.x + violette.width < 0){
-           violetteActive = false;
-           violette = null;
-       }
-   }
-
-   // Affichage bouclier
-   context.fillStyle = "purple";
-   context.font = "18px Arial";
-   context.fillText("🌸 Esquives : " + shieldCount, 10, 25);
+    setInterval(placeobstacle, 1500);
+    setInterval(changePersoImg1, 100);
+    document.addEventListener("keydown", movePerso);
 }
 
 function update() {
     if (gameOver) {
-        // MISE À JOUR DU RECORD 
         if (score > highScore) {
             highScore = score;
             localStorage.setItem("highScore", highScore);
         }
-        // --- DESIGN DE L'ÉCRAN DE FIN ---
-        context.fillStyle = "rgba(0, 0, 0, 0.7)"; // Fond sombre semi-transparent
+        // Écran de Game Over
+        context.fillStyle = "rgba(0, 0, 0, 0.7)";
         context.fillRect(0, 0, boardWidth, boardHeight);
-
         context.textAlign = "center";
         context.font = "bold 60px sans-serif";
-        
-        // Ombre portée du texte
         context.fillStyle = "black";
         context.fillText("GAME OVER", boardWidth / 2 + 4, boardHeight / 2);
-        // Texte rouge
         context.fillStyle = "#FF3131"; 
         context.fillText("GAME OVER", boardWidth / 2, boardHeight / 2 - 4);
-
-        // Sous-texte
+        
         context.font = "bold 20px sans-serif";
         context.fillStyle = "white";
         context.fillText("Score Final : " + score, boardWidth / 2, boardHeight / 2 + 50);
-        context.fillStyle = "#FFD700"; // Or
-        context.fillText("Meilleur Record : " + highScore, boardWidth / 2, boardHeight / 2 + 80);
-        
-        context.font = "italic 16px sans-serif";
-        context.fillStyle = "#ccc";
-        context.fillText("Appuyez sur une touche pour recommencer", boardWidth / 2, boardHeight / 2 + 115);
-        
-        return;
-    } // <--- IL MANQUAIT CETTE ACCOULADE POUR FERMER LE IF
+        context.fillStyle = "#FFD700";
+        context.fillText("Record : " + highScore, boardWidth / 2, boardHeight / 2 + 80);
+        return; 
+    }
 
     requestAnimationFrame(update);
     context.clearRect(0, 0, board.width, board.height);
 
-    // Obstacles
+    // 1. Obstacles
     for (let i = 0; i < obstacleArray.length; i++) {
-        let obstacle = obstacleArray[i];
-        obstacle.x += velocityX;
-        context.drawImage(obstacle.img, obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+        let ob = obstacleArray[i];
+        ob.x += velocityX;
+        context.drawImage(ob.img, ob.x, ob.y, ob.width, ob.height);
 
-        if (detectCollision(perso, obstacle)) {
-            gameOver = true;
+        if (detectCollision(perso, ob)) {
+            if (shieldCount > 0) {
+                shieldCount--;
+                obstacleArray.splice(i, 1);
+                i--;
+            } else {
+                gameOver = true;
+            }
         }
     }
 
-    // Physique
+    // 2. La Violette
+    if (violetteActive && violette) {
+        violette.x += velocityX;
+        context.drawImage(violetteImg, violette.x, violette.y, violette.width, violette.height);
+        if (detectCollision(perso, violette)) {
+            if (shieldCount < 2) shieldCount++;
+            violetteActive = false;
+            violette = null;
+        }
+        if (violette && violette.x + violette.width < 0) {
+            violetteActive = false;
+            violette = null;
+        }
+    }
+
+    // 3. Perso & Physique
     velocityY += gravity;
-    perso.y = Math.min(perso.y + velocityY, persoY); 
-
-    // Dessin perso
+    perso.y = Math.min(perso.y + velocityY, boardHeight - persoHeight);
     context.drawImage(currentPersoImg, perso.x, perso.y, perso.width, perso.height);
-    
-    // Score
-    context.fillStyle = "black";
-    context.font = "20px sans-serif";
+
+    // 4. UI & Score
     score++;
+    updateBackground(); // Ta fonction actuelle reste inchangée
+    if (score % 500 == 0) velocityX -= 0.2;
 
-    updateBackground();
+    // --- STYLE DU TEXTE ---
+    context.textAlign = "left";
+    context.font = "bold 22px sans-serif";
+    context.lineWidth = 4; // L'épaisseur du contour noir
+    context.lineJoin = "round"; // Pour un contour bien propre
 
-    // Augmente la vitesse tous les 500 points
-    if (score % 500 == 0) {
-        velocityX -= 0.2; 
-    }
-    context.fillText("Score: " + score, 5, 20);
-    context.fillText("Best: " + highScore, 5, 45); 
+    // Affichage du SCORE
+    context.strokeStyle = "black";
+    context.strokeText("Score: " + score, 15, 35); // On dessine le contour
+    context.fillStyle = "white";
+    context.fillText("Score: " + score, 15, 35);   // On remplit l'intérieur
+
+    // Affichage du RECORD
+    context.strokeStyle = "black";
+    context.strokeText("Best: " + highScore, 15, 65);
+    context.fillStyle = "#FFD700"; // Couleur Or
+    context.fillText("Best: " + highScore, 15, 65);
+
+    // Affichage des ESQUIVES
+    context.strokeStyle = "black";
+    context.strokeText("🌸 Esquives: " + shieldCount, 15, 95);
+    context.fillStyle = "#FF69B4"; // Couleur Rose
+    context.fillText("🌸 Esquives: " + shieldCount, 15, 95);
 }
 
-/*
-function movePerso(e){
-   console.log('executing the miovePerso function outside for loop')
-   if (gameOver){
-       return;
-   }
-   if((e.code == "Space" || e.code == "ArrowUp") && perso.y == persoY){
-       //jump
-       console.log('executing the miovePerso function')
-       velocityY = -10
-   }
-}
-
-*/
+// Les autres fonctions restent identiques
 function movePerso(e) {
-    if (gameOver) {
-        // Relance le jeu si on appuie sur une touche après un Game Over
-        location.reload(); 
-        return;
-    }
-    
-    if ((e.code == "Space" || e.code == "ArrowUp") && perso.y == persoY) {
+    if (gameOver) { location.reload(); return; }
+    if ((e.code == "Space" || e.code == "ArrowUp") && perso.y >= boardHeight - persoHeight) {
         velocityY = -10;
     }
 }
 
+function placeobstacle() {
+    if (gameOver) return;
+    let r = Math.random();
+    let ob = { x: boardWidth, width: 40, height: 40 };
+    if (r > 0.90) { ob.img = pontImg; ob.y = boardHeight - 40; }
+    else if (r > 0.70) { ob.img = swordImg; ob.y = boardHeight - 40; }
+    else { ob.img = chateauImg; ob.y = boardHeight - 40; }
+    obstacleArray.push(ob);
+    if (obstacleArray.length > 5) obstacleArray.shift();
 
-function placeobstacle(){
-   //place obstacle
-
-   console.log("in place obstacle")
-  
-   let placeobstacleChance = Math.random();//0-0.9999
-
-   if (placeobstacleChance > .90) { //10% you get pont
-       let obstacle = {
-       img : pontImg,
-       x : pontX,
-       y : pontY,
-       width : pontWidth,
-       height :pontHeight}
-       obstacleArray.push(obstacle)
-   }
-   else if (placeobstacleChance > .70){ //30% you get sword
-       let obstacle = {
-       img : swordImg,
-       x : swordX,
-       y : swordY,
-       width : swordWidth,
-       height : swordHeight}
-       obstacleArray.push(obstacle);
-   }
-   else if(placeobstacleChance >.50){ //50% you get chateau
-       let obstacle = {
-       img : chateauImg,
-       x : chateauX,
-       y : chateauY,
-       width : chateauWidth,
-       height : chateauHeight}
-       obstacleArray.push(obstacle);
-       }
-   if (obstacleArray.length > 5){
-       obstacleArray.shift(); // removes the first element for the Array 
-  
-   }
-
-   //place violette
-   if (!violetteActive && Math.random() < 0.30) {
-        let randomY = boardHeight - violetteHeight - Math.floor(Math.random() * 150) - 30; // hauteur aléatoire
-        violette = {
-            x: boardWidth,
-            y: randomY,
-            width: violetteWidth,
-            height: violetteHeight
-        };
+    if (!violetteActive && Math.random() < 0.20) {
+        violette = { x: boardWidth, y: boardHeight - 150 - Math.random() * 100, width: 70, height: 70 };
         violetteActive = true;
     }
 }
 
-
-function changePersoImg1(){
-    if (gameOver){ 
-         return;
-    }
-
-    // NOUVELLE RÈGLE : On n'anime que si le personnage est AU SOL (pour éviter bug)
-    // perso.y == persoY signifie qu'il est sur sa position de base (le sol)
-    if (perso.y === persoY) {
-        persoIndex++;
-
-        if (persoIndex >= persoArray.length){
-            persoIndex = 0;
-        }
+function changePersoImg1() {
+    if (gameOver) return;
+    if (perso.y >= boardHeight - persoHeight) {
+        persoIndex = (persoIndex + 1) % persoArray.length;
         currentPersoImg = persoArray[persoIndex];
     } else {
-        // Si il est en l'air, on force l'image de saut
-        currentPersoImg = persoArray[0]; 
+        currentPersoImg = persoArray[0];
     }
 }
 
 function detectCollision(a, b) {
-    // On réduit la zone de collision de 10 pixels de chaque côté
-    let padding = 10; 
+    let p = 10;
+    return a.x + p < b.x + b.width - p && a.x + a.width - p > b.x + p &&
+           a.y + p < b.y + b.height - p && a.y + a.height - p > b.y + p;
+}
+
+function updateBackground() {
+    // 1. Calcul de l'index (1, 2, ou 3)
+    let bgIndex = (Math.floor(score / 300) % 3) + 1; 
     
-    return a.x + padding < b.x + b.width - padding &&   // Le nez du perso touche l'arrière de l'obstacle
-           a.x + a.width - padding > b.x + padding &&   // L'arrière du perso touche le nez de l'obstacle
-           a.y + padding < b.y + b.height - padding &&  // Le haut du perso touche le bas
-           a.y + a.height - padding > b.y + padding;    // Le bas du perso touche le haut 
-           }
+    // 2. Choix de l'extension
+    let extension = ".jpg"; 
+    if (bgIndex === 3) {
+        extension = ".jpeg"; // On force le .jpeg pour la 3ème image
+    }
+
+    let bg = "url('./img/fond" + bgIndex + extension + "')";
+
+    // 3. Application du changement
+    if (bg !== currentBg) {
+        board.style.backgroundImage = bg;
+        board.style.backgroundSize = "cover";
+        board.style.backgroundPosition = "center";
+        currentBg = bg; 
+        console.log("Nouveau fond chargé : " + bg);
+    }
+}
