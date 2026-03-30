@@ -1,22 +1,40 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <title>Menu - Occitanie Game</title>
-    <link rel="stylesheet" href="occitanie.css">
-</head>
-<body>
-    <div id="menu-container">
-        <h1>Bienvenue dans notre jeu</h1>
-        
-        <p>Entrez votre pseudo :</p>
+    <head>
+        <meta charset="UTF-8">
+        <title>Menu - Occitanie Game</title>
+        <link rel="stylesheet" href="occitanie.css">
+    </head>
+    <body>
+        <div id="menu-card">
+        <h1>Occitanie Game</h1>
+        <p>Prêt pour l'aventure ?</p>
         <input type="text" id="pseudo" placeholder="Ex: Jean" required>
-        
-        <br><br>
-        
-        <button onclick="startGame()">CLIQUEZ SUR START</button>
+        <button class="btn-start" onclick="startGame()">CLIQUEZ SUR START</button>
     </div>
 
+    <div class="image-gallery">
+        <a href="web.html" class="image-item">
+            <img src="img/fond1.jpg" alt="Toulouse">
+            <span>Toulouse</span>
+        </a>
+        <a href="web.html" class="image-item">
+            <img src="img/fond2.jpg" alt="Carcassonne">
+            <span>Carcassonne</span>
+        </a>
+        <a href="web.html" class="image-item">
+            <img src="img/fond3.jpeg" alt="Albi">
+            <span>Albi</span>
+        </a>
+    </div>
+
+    <div id="rules-bottom">
+        <h3>📜 Règles de survie en Occitanie</h3>
+        <div class="rules-content">
+            <p>🌸 Collecte jusqu'à <strong>2 violettes</strong> maximum.</p>
+            <p>🛡️ Chaque violette te permet de percuter <strong>1 obstacle</strong> sans mourir.</p>
+        </div>
+    </div>
     <script>
         function startGame() {
             let name = document.getElementById("pseudo").value;
@@ -30,5 +48,6 @@
             }
         }
     </script>
+
 </body>
 </html>

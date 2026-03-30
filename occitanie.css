@@ -1,20 +1,129 @@
+/* --- Style Global --- */
 body {
-    background-image: url('./img/fond.jpeg');
-    
-    /* 2. Fixer l'image pour qu'elle ne défile pas avec le texte */
+    background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('./img/fond.jpeg');
     background-attachment: fixed;
-    
-    /* 3. Couvrir tout l'écran sans déformer */
     background-size: cover;
-    
-    /* 4. Centrer l'image */
     background-position: center;
-    font-family : 'Courier New', Courier,monospace;
-    text-align : center; 
-
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Aligne les enfants au centre horizontalement */
+    min-height: 100vh;
+    margin: 0;
+    padding-top: 50px;
 }
 
+/* --- La Carte Centrale (CORRIGÉE POUR LE CENTRAGE) --- */
+#menu-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(15px);
+    padding: 20px 30px;
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    width: 300px;
+    
+    /* Le "auto" à gauche et à droite force le centrage si le parent hésite */
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 50px;
+    
+    /* Centrage interne du texte et des boutons */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
 
-#board {
-   border-bottom: 1px solid black;
+h1 {
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+}
+
+#pseudo {
+    width: 90%;
+    padding: 10px;
+    font-size: 1rem;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border: none;
+    text-align: center;
+}
+
+/* --- La Galerie --- */
+.image-gallery {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto; /* Centrage de la galerie aussi */
+}
+
+.image-item {
+    text-decoration: none;
+}
+
+.image-item img {
+    width: 300px;
+    height: 400px;
+    object-fit: cover;
+    border-radius: 20px;
+    border: 4px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.image-item:hover img {
+    border-color: #ffcc00;
+    transform: scale(1.05) translateY(-10px);
+}
+
+/* --- Noms des villes : JAUNE ET SOULIGNÉ --- */
+.image-item span {
+    display: block;
+    margin-top: 15px;
+    font-size: 1.4rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #ffcc00; /* Jaune */
+    text-decoration: underline; /* Souligné */
+    text-underline-offset: 8px;
+    text-decoration-thickness: 2px;
+
+
+    /* --- Bloc des règles en bas --- */
+#rules-bottom {
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 204, 0, 0.3); /* Bordure jaune discrète */
+    border-radius: 15px;
+    padding: 20px;
+    margin-top: 50px; /* Espace avec les images */
+    margin-bottom: 30px;
+    width: 80%;
+    max-width: 600px;
+    text-align: center;
+}
+
+#rules-bottom h3 {
+    color: #ffcc00; /* Jaune Occitanie */
+    margin-top: 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 1.2rem;
+}
+
+.rules-content p {
+    margin: 10px 0;
+    font-size: 1.1rem;
+    line-height: 1.5;
+}
+
+/* On fait ressortir les violettes avec une couleur mauve */
+.rules-content strong {
+    color: #e0b0ff; 
+    border-bottom: 1px solid #e0b0ff;
+}
 }
