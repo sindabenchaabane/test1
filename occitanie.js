@@ -142,11 +142,11 @@ function update() {
     context.fillStyle = "#FFD700"; // Couleur Or
     context.fillText("Best: " + highScore, 15, 65);
 
-    // Affichage des ESQUIVES
+    // Affichage des violettes
     context.strokeStyle = "black";
-    context.strokeText("🌸 Esquives: " + shieldCount, 15, 95);
+    context.strokeText("🌸 Violettes : " + shieldCount, 15, 95);
     context.fillStyle = "#FF69B4"; // Couleur Rose
-    context.fillText("🌸 Esquives: " + shieldCount, 15, 95);
+    context.fillText("🌸 Violettes : " + shieldCount, 15, 95);
 }
 
 // Les autres fonctions restent identiques
