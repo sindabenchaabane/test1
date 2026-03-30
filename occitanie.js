@@ -6,8 +6,8 @@ let context;
 let currentBg = "";
 
 // Personnage
-let persoWidth = 88;
-let persoHeight = 94;
+let persoWidth = 120;
+let persoHeight = 158;
 let persoX = 50;
 let persoY = boardHeight - persoHeight;
 let persoImg1 = new Image(); persoImg1.src = "./img+/1.png";
@@ -27,8 +27,8 @@ let pontImg = new Image(); pontImg.src = "./img/pont.png";
 
 // Violette (Le Bonus)
 let violetteImg = new Image(); violetteImg.src = "./img/violette.png";
-let violetteWidth = 70;
-let violetteHeight = 70;
+let violetteWidth = 160;
+let violetteHeight = 160;
 let violette = null;
 let violetteActive = false;
 let shieldCount = 0; // Tes esquives
@@ -36,7 +36,7 @@ let shieldCount = 0; // Tes esquives
 // Physics & Game State
 let velocityX = -8;
 let velocityY = 0;
-let gravity = .4;
+let gravity = 0.3;
 let gameOver = false;
 let score = 0;
 let highScore = localStorage.getItem("highScore") || 0;
@@ -116,7 +116,7 @@ function update() {
     // 2. La Violette
     if (violetteActive && violette) {
         violette.x += velocityX;
-        context.drawImage(violetteImg, violette.x, violette.y, violette.width, violette.height);
+        context.drawImage(violetteImg, violette.x, violette.y, violetteWidth, violetteHeight);
         if (detectCollision(perso, violette)) {
             if (shieldCount < 2) shieldCount++;
             violetteActive = false;
@@ -135,8 +135,7 @@ function update() {
 
     // 4. UI & Score
     score++;
-    updateBackground(); // Ta fonction actuelle reste inchangée
-    if (score % 500 == 0) velocityX -= 0.2;
+    if ((score % 200 == 0) && (score <= 5000)) velocityX -= 1;
 
     // --- STYLE DU TEXTE ---
     context.textAlign = "left";
@@ -173,16 +172,40 @@ function movePerso(e) {
 
 function placeobstacle() {
     if (gameOver) return;
-    let r = Math.random();
-    let ob = { x: boardWidth, width: 40, height: 40 };
-    if (r > 0.90) { ob.img = pontImg; ob.y = boardHeight - 40; }
-    else if (r > 0.70) { ob.img = swordImg; ob.y = boardHeight - 40; }
-    else { ob.img = chateauImg; ob.y = boardHeight - 40; }
-    obstacleArray.push(ob);
-    if (obstacleArray.length > 5) obstacleArray.shift();
 
+    let r = Math.random();
+    
+    // Tailles existantes
+    let chateauSize = 105; 
+    let swordSize = 110;   
+    let pontWidth = 100;
+    let pontHeight = 120;
+
+    let ob = { x: boardWidth, width: chateauSize, height: chateauSize, y: boardHeight - chateauSize };
+
+    if (r > 0.70) { // 30% de chance pour le PONT (0.70 à 1.0)
+        ob.img = pontImg; 
+        ob.width = pontWidth; ob.height = pontHeight; ob.y = boardHeight - pontHeight;
+    } 
+    else if (r > 0.40) { // 30% de chance pour l'ÉPÉE (0.40 à 0.70)
+        ob.img = swordImg; 
+        ob.width = swordSize; ob.height = swordSize; ob.y = boardHeight - swordSize;
+    } 
+    else if (r > 0.10) { // 30% de chance pour le CHÂTEAU (0.10 à 0.40)
+        ob.img = chateauImg; 
+        // Note: ob a déjà les dimensions du château par défaut dans ton code
+    } 
+    else { 
+        // Seulement 10% de chance (si r < 0.10) qu'il ne se passe RIEN
+        return; 
+    }
+
+    obstacleArray.push(ob);
+    if (obstacleArray.length > 7) obstacleArray.shift();
+
+    // Bonus Violette (inchangé)
     if (!violetteActive && Math.random() < 0.20) {
-        violette = { x: boardWidth, y: boardHeight - 150 - Math.random() * 100, width: 70, height: 70 };
+        violette = { x: boardWidth, y: boardHeight - 275 - Math.random() * 100, width: 70, height: 70 };
         violetteActive = true;
     }
 }
@@ -201,26 +224,4 @@ function detectCollision(a, b) {
     let p = 10;
     return a.x + p < b.x + b.width - p && a.x + a.width - p > b.x + p &&
            a.y + p < b.y + b.height - p && a.y + a.height - p > b.y + p;
-}
-
-function updateBackground() {
-    // 1. Calcul de l'index (1, 2, ou 3)
-    let bgIndex = (Math.floor(score / 300) % 3) + 1; 
-    
-    // 2. Choix de l'extension
-    let extension = ".jpg"; 
-    if (bgIndex === 3) {
-        extension = ".jpeg"; // On force le .jpeg pour la 3ème image
-    }
-
-    let bg = "url('./img/fond" + bgIndex + extension + "')";
-
-    // 3. Application du changement
-    if (bg !== currentBg) {
-        board.style.backgroundImage = bg;
-        board.style.backgroundSize = "cover";
-        board.style.backgroundPosition = "center";
-        currentBg = bg; 
-        console.log("Nouveau fond chargé : " + bg);
-    }
 }
