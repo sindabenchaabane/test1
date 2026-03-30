@@ -27,8 +27,8 @@ let pontImg = new Image(); pontImg.src = "./img/pont.png";
 
 // Violette (Le Bonus)
 let violetteImg = new Image(); violetteImg.src = "./img/violette.png";
-let violetteWidth = 70;
-let violetteHeight = 70;
+let violetteWidth = 160;
+let violetteHeight = 160;
 let violette = null;
 let violetteActive = false;
 let shieldCount = 0; // Tes esquives
@@ -116,7 +116,7 @@ function update() {
     // 2. La Violette
     if (violetteActive && violette) {
         violette.x += velocityX;
-        context.drawImage(violetteImg, violette.x, violette.y, violette.width, violette.height);
+        context.drawImage(violetteImg, violette.x, violette.y, violetteWidth, violetteHeight);
         if (detectCollision(perso, violette)) {
             if (shieldCount < 2) shieldCount++;
             violetteActive = false;
@@ -136,7 +136,7 @@ function update() {
     // 4. UI & Score
     score++;
     updateBackground(); // Ta fonction actuelle reste inchangée
-    if (score % 500 == 0) velocityX -= 0.2;
+    if ((score % 200 == 0) && (score <= 5000)) velocityX -= 1;
 
     // --- STYLE DU TEXTE ---
     context.textAlign = "left";
@@ -175,10 +175,10 @@ function placeobstacle() {
     if (gameOver) return;
     let r = Math.random();
     let ob = { x: boardWidth, width: 40, height: 40 };
-    if (r > 0.90) { ob.img = pontImg; ob.y = boardHeight - 40; }
-    else if (r > 0.70) { ob.img = swordImg; ob.y = boardHeight - 40; }
-    else { ob.img = chateauImg; ob.y = boardHeight - 40; }
-    obstacleArray.push(ob);
+    if (r > 0.90) { ob.img = pontImg; ob.y = boardHeight - 40;  obstacleArray.push(ob);}
+    else if (r > 0.70) { ob.img = swordImg; ob.y = boardHeight - 40;  obstacleArray.push(ob);}
+    else if (r > 0.50) { ob.img = chateauImg; ob.y = boardHeight - 40; obstacleArray.push(ob); }
+   
     if (obstacleArray.length > 5) obstacleArray.shift();
 
     if (!violetteActive && Math.random() < 0.20) {
