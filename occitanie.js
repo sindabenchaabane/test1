@@ -6,8 +6,8 @@ let context;
 let currentBg = "";
 
 // Personnage
-let persoWidth = 88;
-let persoHeight = 94;
+let persoWidth = 135;
+let persoHeight = 168;
 let persoX = 50;
 let persoY = boardHeight - persoHeight;
 let persoImg1 = new Image(); persoImg1.src = "./img+/1.png";
@@ -36,7 +36,7 @@ let shieldCount = 0; // Tes esquives
 // Physics & Game State
 let velocityX = -8;
 let velocityY = 0;
-let gravity = .4;
+let gravity = 0.25;
 let gameOver = false;
 let score = 0;
 let highScore = localStorage.getItem("highScore") || 0;
@@ -173,13 +173,50 @@ function movePerso(e) {
 
 function placeobstacle() {
     if (gameOver) return;
+
     let r = Math.random();
-    let ob = { x: boardWidth, width: 40, height: 40 };
-    if (r > 0.90) { ob.img = pontImg; ob.y = boardHeight - 40;  obstacleArray.push(ob);}
-    else if (r > 0.70) { ob.img = swordImg; ob.y = boardHeight - 40;  obstacleArray.push(ob);}
-    else if (r > 0.50) { ob.img = chateauImg; ob.y = boardHeight - 40; obstacleArray.push(ob); }
-   
-    if (obstacleArray.length > 5) obstacleArray.shift();
+    
+    // Taille du CHÂTEAU (que tu trouves parfaite)
+    let chateauSize = 90; 
+    
+    // Nouvelle taille de l'ÉPÉE (agrandie à 80px)
+    let swordSize = 80;   
+    
+    // Taille du PONT (agrandi à 100px)
+    let pontWidth = 100;
+    let pontHeight = 70;
+
+    let ob = { 
+        x: boardWidth, 
+        // Par défaut, on utilise la taille parfaite du château
+        width: chateauSize, 
+        height: chateauSize,
+        y: boardHeight - chateauSize // Calcule le sol
+    };
+
+    // --- Attribution des images et tailles spécifiques ---
+    if (r > 0.80) { // 20% de chance d'avoir le PONT (agrandi)
+        ob.img = pontImg; 
+        ob.width = pontWidth;
+        ob.height = pontHeight;
+        ob.y = boardHeight - pontHeight; // Recalcule le sol pour le pont
+    } 
+    else if (r > 0.50) { // 30% de chance d'avoir l'ÉPÉE (agrandie)
+        ob.img = swordImg; 
+        // On remplace les anciennes valeurs par swordSize
+        ob.width = swordSize; 
+        ob.height = swordSize; 
+        ob.y = boardHeight - swordSize; // Recalcule le sol pour l'épée
+    } 
+    else { // 50% de chance d'avoir le CHÂTEAU (parfait)
+        ob.img = chateauImg; 
+        // ob utilise déjà les valeurs chateauSize par défaut
+    }
+
+    obstacleArray.push(ob);
+    
+    // Limite d'obstacles à l'écran (on passe à 7 pour plus de fun)
+    if (obstacleArray.length > 7) obstacleArray.shift();
 
     if (!violetteActive && Math.random() < 0.20) {
         violette = { x: boardWidth, y: boardHeight - 150 - Math.random() * 100, width: 70, height: 70 };
