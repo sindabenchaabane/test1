@@ -7,47 +7,67 @@
     </head>
     <body>
         <div id="menu-card">
-        <h1>Occitanie Game</h1>
-        <p>Prêt pour l'aventure ?</p>
-        <input type="text" id="pseudo" placeholder="Ex: Jean" required>
-        <button class="btn-start" onclick="startGame()">CLIQUEZ SUR START</button>
-    </div>
+            <h1>Occitanie Game</h1>
+            <p>Entrez votre pseudo :</p>
+            <input type="text" id="pseudo" placeholder="Ex: Jean" required>
+            
+            <button class="btn-start" onclick="confirmPseudo()">VALIDER LE PSEUDO</button>
+            
+            <p id="msg-choix" style="display:none; color:#ffcc00; font-weight:bold; margin-top:10px;">
+                C'est parti ! Maintenant, clique sur une ville pour commencer.
+            </p>
+        </div>
 
-    <div class="image-gallery">
-        <a href="web.html" class="image-item">
-            <img src="img/fond1.jpg" alt="Toulouse">
-            <span>Toulouse</span>
-        </a>
-        <a href="web.html" class="image-item">
+        <div class="image-gallery">
+            <div class="image-item" onclick="launchGame('Toulouse')" style="cursor:pointer;">
+                <img src="img/fond1.jpg" alt="Toulouse">
+                <span>Toulouse</span>
+        </div>
+        <div class="image-item" onclick="launchGame('Carcassonne')" style="cursor:pointer;">
             <img src="img/fond2.jpg" alt="Carcassonne">
             <span>Carcassonne</span>
-        </a>
-        <a href="web.html" class="image-item">
+        </div>
+        <div class="image-item" onclick="launchGame('Albi')" style="cursor:pointer;">
             <img src="img/fond3.jpeg" alt="Albi">
             <span>Albi</span>
-        </a>
-    </div>
-
-    <div id="rules-bottom">
-        <h3>📜 Règles de survie en Occitanie</h3>
-        <div class="rules-content">
-            <p>🌸 Collecte jusqu'à <strong>2 violettes</strong> maximum.</p>
-            <p>🛡️ Chaque violette te permet de percuter <strong>1 obstacle</strong> sans mourir.</p>
         </div>
-    </div>
-    <script>
-        function startGame() {
-            let name = document.getElementById("pseudo").value;
-            if (name === "") {
-                alert("N'oublie pas ton pseudo !");
-            } else {
-                // On enregistre le pseudo dans la mémoire du navigateur (optionnel)
-                localStorage.setItem("playerName", name);
-                // On change de page !
-                window.location.href = "web.html";
+
+        <div id="rules-bottom">
+            <h3>📜 Règles de survie en Occitanie</h3>
+            <div class="rules-content">
+                <p>🌸 Collecte jusqu'à <strong>2 violettes</strong> maximum.</p>
+                <p>🛡️ Chaque violette te permet de percuter <strong>1 obstacle</strong> sans mourir.</p>
+        </div>
+        <script>
+            // Étape 1 : Valider le pseudo
+            function confirmPseudo() {
+                let name = document.getElementById("pseudo").value;
+                if (name === "") {
+                    alert("N'oublie pas ton pseudo avant de choisir une ville !");
+                } else {
+                    localStorage.setItem("playerName", name);
+                    // On affiche le message d'instruction
+                    document.getElementById("msg-choix").style.display = "block";
+                    // On fait défiler doucement vers les images
+                    window.scrollBy({ top: 200, behavior: 'smooth' });
+                }
             }
-        }
-    </script>
+
+            // Étape 2 : Lancer le jeu au clic sur une ville
+            function launchGame(villeChoisie) {
+                let name = localStorage.getItem("playerName");
+                
+                if (!name || name === "") {
+                    alert("Entre ton pseudo et valide-le d'abord !");
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    // On enregistre la ville choisie
+                    localStorage.setItem("playerLocation", villeChoisie);
+                    // On lance enfin le jeu
+                    window.location.href = "web.html";
+                }
+            }
+        </script>
 
 </body>
 </html>

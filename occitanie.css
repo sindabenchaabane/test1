@@ -126,4 +126,9 @@ h1 {
     color: #e0b0ff; 
     border-bottom: 1px solid #e0b0ff;
 }
+
+
+.image-item {
+    cursor: pointer;
+}
 }
