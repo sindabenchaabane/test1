@@ -1,15 +1,19 @@
 body {
+    
+    /* 2. Fixer l'image pour qu'elle ne défile pas avec le texte */
+    background-attachment: fixed;
+    
+    /* 3. Couvrir tout l'écran sans déformer */
+    background-size: cover;
+    
+    /* 4. Centrer l'image */
+    background-position: center;
     font-family : 'Courier New', Courier,monospace;
-    text-align : center;
- 
- 
- }
- 
- 
- #board {
-    background-color: lightcoral;
-    border-bottom: 1px solid black;
- 
- 
- }
- 
+    text-align : center; 
+
+}
+
+
+#board {
+   border-bottom: 1px solid black;
+}
