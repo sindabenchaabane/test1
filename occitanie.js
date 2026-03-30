@@ -55,6 +55,12 @@ window.onload = function() {
     document.addEventListener("keydown", movePerso);
 }
 
+// Background
+let backgroundImg = new Image();
+backgroundImg.src = "./img/tls.png"; // Your seamless Toulouse city
+let bgX = 0;
+let bgSpeed = 2;
+
 function update() {
     if (gameOver) {
         if (score > highScore) {
@@ -82,7 +88,15 @@ function update() {
     requestAnimationFrame(update);
     context.clearRect(0, 0, board.width, board.height);
 
-    // 1. Obstacles
+
+    // 1.1 City background
+    bgX -= bgSpeed;
+    if (bgX <= -boardWidth) { bgX = 0; }
+    context.drawImage(backgroundImg, bgX, 0, boardWidth, boardHeight);
+    context.drawImage(backgroundImg, bgX + boardWidth, 0, boardWidth, boardHeight);
+
+
+    // 1.2 Obstacles
     for (let i = 0; i < obstacleArray.length; i++) {
         let ob = obstacleArray[i];
         ob.x += velocityX;
@@ -147,9 +161,10 @@ function update() {
     context.strokeText("🌸 Esquives: " + shieldCount, 15, 95);
     context.fillStyle = "#FF69B4"; // Couleur Rose
     context.fillText("🌸 Esquives: " + shieldCount, 15, 95);
+
 }
 
-// Les autres fonctions restent identiques
+
 function movePerso(e) {
     if (gameOver) { location.reload(); return; }
     if ((e.code == "Space" || e.code == "ArrowUp") && perso.y >= boardHeight - persoHeight) {

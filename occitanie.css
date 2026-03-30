@@ -1,5 +1,4 @@
 body {
-    background-image: url('./img/fond.jpeg');
     
     /* 2. Fixer l'image pour qu'elle ne défile pas avec le texte */
     background-attachment: fixed;
