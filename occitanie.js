@@ -55,11 +55,21 @@ window.onload = function() {
     document.addEventListener("keydown", movePerso);
 }
 
-// Background
+//GESTION DYNAMIQUE DU BACKGROUND
 let backgroundImg = new Image();
-backgroundImg.src = "./img/tls.png"; // Your seamless Toulouse city
+
+// On récupère le fond choisi dans le localStorage
+let savedBg = localStorage.getItem("selectedBackground");
+
+// Si on a trouvé un fond, on l'utilise
+if (savedBg) {
+    backgroundImg.src = savedBg;
+} else {
+    backgroundImg.src = "./img/tls.png"; 
+}
+
 let bgX = 0;
-let bgSpeed = 2;
+let bgSpeed = 2; // Tu peux ajuster la vitesse de défilement ici
 
 function update() {
     if (gameOver) {
