@@ -6,8 +6,8 @@ let context;
 let currentBg = "";
 
 // Personnage
-let persoWidth = 135;
-let persoHeight = 168;
+let persoWidth = 120;
+let persoHeight = 158;
 let persoX = 50;
 let persoY = boardHeight - persoHeight;
 let persoImg1 = new Image(); persoImg1.src = "./img+/1.png";
@@ -36,7 +36,7 @@ let shieldCount = 0; // Tes esquives
 // Physics & Game State
 let velocityX = -8;
 let velocityY = 0;
-let gravity = 0.25;
+let gravity = 0.3;
 let gameOver = false;
 let score = 0;
 let highScore = localStorage.getItem("highScore") || 0;
@@ -135,7 +135,6 @@ function update() {
 
     // 4. UI & Score
     score++;
-    updateBackground(); // Ta fonction actuelle reste inchangée
     if ((score % 200 == 0) && (score <= 5000)) velocityX -= 1;
 
     // --- STYLE DU TEXTE ---
@@ -176,50 +175,37 @@ function placeobstacle() {
 
     let r = Math.random();
     
-    // Taille du CHÂTEAU (que tu trouves parfaite)
-    let chateauSize = 90; 
-    
-    // Nouvelle taille de l'ÉPÉE (agrandie à 80px)
-    let swordSize = 80;   
-    
-    // Taille du PONT (agrandi à 100px)
+    // Tailles existantes
+    let chateauSize = 105; 
+    let swordSize = 110;   
     let pontWidth = 100;
-    let pontHeight = 70;
+    let pontHeight = 120;
 
-    let ob = { 
-        x: boardWidth, 
-        // Par défaut, on utilise la taille parfaite du château
-        width: chateauSize, 
-        height: chateauSize,
-        y: boardHeight - chateauSize // Calcule le sol
-    };
+    let ob = { x: boardWidth, width: chateauSize, height: chateauSize, y: boardHeight - chateauSize };
 
-    // --- Attribution des images et tailles spécifiques ---
-    if (r > 0.80) { // 20% de chance d'avoir le PONT (agrandi)
+    if (r > 0.70) { // 30% de chance pour le PONT (0.70 à 1.0)
         ob.img = pontImg; 
-        ob.width = pontWidth;
-        ob.height = pontHeight;
-        ob.y = boardHeight - pontHeight; // Recalcule le sol pour le pont
+        ob.width = pontWidth; ob.height = pontHeight; ob.y = boardHeight - pontHeight;
     } 
-    else if (r > 0.50) { // 30% de chance d'avoir l'ÉPÉE (agrandie)
+    else if (r > 0.40) { // 30% de chance pour l'ÉPÉE (0.40 à 0.70)
         ob.img = swordImg; 
-        // On remplace les anciennes valeurs par swordSize
-        ob.width = swordSize; 
-        ob.height = swordSize; 
-        ob.y = boardHeight - swordSize; // Recalcule le sol pour l'épée
+        ob.width = swordSize; ob.height = swordSize; ob.y = boardHeight - swordSize;
     } 
-    else { // 50% de chance d'avoir le CHÂTEAU (parfait)
+    else if (r > 0.10) { // 30% de chance pour le CHÂTEAU (0.10 à 0.40)
         ob.img = chateauImg; 
-        // ob utilise déjà les valeurs chateauSize par défaut
+        // Note: ob a déjà les dimensions du château par défaut dans ton code
+    } 
+    else { 
+        // Seulement 10% de chance (si r < 0.10) qu'il ne se passe RIEN
+        return; 
     }
 
     obstacleArray.push(ob);
-    
-    // Limite d'obstacles à l'écran (on passe à 7 pour plus de fun)
     if (obstacleArray.length > 7) obstacleArray.shift();
 
+    // Bonus Violette (inchangé)
     if (!violetteActive && Math.random() < 0.20) {
-        violette = { x: boardWidth, y: boardHeight - 150 - Math.random() * 100, width: 70, height: 70 };
+        violette = { x: boardWidth, y: boardHeight - 275 - Math.random() * 100, width: 70, height: 70 };
         violetteActive = true;
     }
 }
@@ -238,26 +224,4 @@ function detectCollision(a, b) {
     let p = 10;
     return a.x + p < b.x + b.width - p && a.x + a.width - p > b.x + p &&
            a.y + p < b.y + b.height - p && a.y + a.height - p > b.y + p;
-}
-
-function updateBackground() {
-    // 1. Calcul de l'index (1, 2, ou 3)
-    let bgIndex = (Math.floor(score / 300) % 3) + 1; 
-    
-    // 2. Choix de l'extension
-    let extension = ".jpg"; 
-    if (bgIndex === 3) {
-        extension = ".jpeg"; // On force le .jpeg pour la 3ème image
-    }
-
-    let bg = "url('./img/fond" + bgIndex + extension + "')";
-
-    // 3. Application du changement
-    if (bg !== currentBg) {
-        board.style.backgroundImage = bg;
-        board.style.backgroundSize = "cover";
-        board.style.backgroundPosition = "center";
-        currentBg = bg; 
-        console.log("Nouveau fond chargé : " + bg);
-    }
 }
