@@ -1,22 +1,27 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
     <head>
         <meta charset="UTF-8">
         <title>Menu - Occitanie Game</title>
         <link rel="stylesheet" href="occitanie.css">
     </head>
+
     <body>
+
+
         <div id="menu-card">
             <h1>Occitanie Game</h1>
-            <p>Entrez votre pseudo :</p>
-            <input type="text" id="pseudo" placeholder="Ex: Jean" required>
+            <p>Enter your nickname:</p>
+            <input type="text" id="pseudo" placeholder="ex. John" required>
             
-            <button class="btn-start" onclick="confirmPseudo()">VALIDER LE PSEUDO</button>
+            <button class="btn-start" onclick="confirmPseudo()">VALIDATE NICKNAME</button>
             
             <p id="msg-choix" style="display:none; color:#ffcc00; font-weight:bold; margin-top:10px;">
-                C'est parti ! Maintenant, clique sur une ville pour commencer.
+                Let's go! Click on a city to start.
             </p>
         </div>
+
+
 
         <div class="image-gallery">
             <div class="image-item" onclick="launchGame('Toulouse')" style="cursor:pointer;">
@@ -32,49 +37,55 @@
             <span>Albi</span>
         </div>
 
+
+
         <div id="rules-bottom">
-            <h3>📜 Règles de survie en Occitanie</h3>
+            <h3>📜 Survival rules</h3>
             <div class="rules-content">
-                <p>🌸 Collecte jusqu'à <strong>2 violettes</strong> maximum.</p>
-                <p>🛡️ Chaque violette te permet de percuter <strong>1 obstacle</strong> sans mourir.</p>
+                <p>🌸 Collect up to <strong>2 violets</strong> maximum.</p>
+                <p>🛡️ Each violet allows you to hit <strong>1 obstacle</strong> without dying.</p>
+            </div>
         </div>
+
+
         <script>
-            // Étape 1 : Valider le pseudo
+            // Step 1 : Validate nickname and show instructions
             function confirmPseudo() {
                 let name = document.getElementById("pseudo").value;
                 if (name === "") {
-                    alert("N'oublie pas ton pseudo avant de choisir une ville !");
+                    alert("Don't forget your nickname before choosing a city!");
                 } else {
                     localStorage.setItem("playerName", name);
-                    // On affiche le message d'instruction
+                    // On affiche le message d'instruction - Show instructions
                     document.getElementById("msg-choix").style.display = "block";
-                    // On fait défiler doucement vers les images
+                    // On fait défiler doucement vers les images - Smooth scroll to images
                     window.scrollBy({ top: 200, behavior: 'smooth' });
                 }
             }
 
-            // Étape 2 : Lancer le jeu au clic sur une ville
-function launchGame(villeChoisie) {
-    let name = localStorage.getItem("playerName");
-    
-    if (!name || name === "") {
-        alert("Entre ton pseudo et valide-le d'abord !");
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    } else {
-        // ON DÉTERMINE LE CHEMIN DE L'IMAGE SELON LA VILLE
-        let bgImage = "";
-        if (villeChoisie === 'Toulouse') bgImage = "img/tls.png";
-        if (villeChoisie === 'Carcassonne') bgImage = "img/crc.png";
-        if (villeChoisie === 'Albi') bgImage = "img/alb.png";
 
-        // ON ENREGISTRE TOUT
-        localStorage.setItem("playerLocation", villeChoisie);
-        localStorage.setItem("selectedBackground", bgImage);
-        
-        // On lance le jeu
-        window.location.href = "web.html";
-    }
-}
+            // Step 2 : Launch game on city click
+            function launchGame(villeChoisie) {
+                let name = localStorage.getItem("playerName");
+                
+                if (!name || name === "") {
+                    alert("Don't forget your nickname before choosing a city!");
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    // ON DÉTERMINE LE CHEMIN DE L'IMAGE SELON LA VILLE CHOISIE - Pick background image path based on chosen city
+                    let bgImage = "";
+                    if (villeChoisie === 'Toulouse') bgImage = "img/tls.png";
+                    if (villeChoisie === 'Carcassonne') bgImage = "img/crc.png";
+                    if (villeChoisie === 'Albi') bgImage = "img/alb.png";
+
+                    // ON ENREGISTRE TOUT - Save everything in localStorage
+                    localStorage.setItem("playerLocation", villeChoisie);
+                    localStorage.setItem("selectedBackground", bgImage);
+                    
+                    // Launch the game
+                    window.location.href = "web.html";
+                }
+            }
         </script>
 
 </body>
