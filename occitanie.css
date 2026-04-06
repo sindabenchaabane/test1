@@ -14,7 +14,7 @@ body {
     padding-top: 50px;
 }
 
-/* --- La Carte Centrale (CORRIGÉE POUR LE CENTRAGE) --- */
+/* --- La Carte Centrale - Central Card --- */
 #menu-card {
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(15px);
@@ -23,12 +23,12 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.2);
     width: 300px;
     
-    /* Le "auto" à gauche et à droite force le centrage si le parent hésite */
+    /* Le "auto" à gauche et à droite force le centrage si le parent hésite - Automatic centering */
     margin-left: auto;
     margin-right: auto;
     margin-bottom: 50px;
     
-    /* Centrage interne du texte et des boutons */
+    /* Centrage interne du texte et des boutons - Internal centering of text and buttons */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -50,7 +50,7 @@ h1 {
     text-align: center;
 }
 
-/* --- La Galerie --- */
+/* --- La Galerie - Image Gallery --- */
 .image-gallery {
     display: flex;
     justify-content: center;
@@ -79,7 +79,7 @@ h1 {
     transform: scale(1.05) translateY(-10px);
 }
 
-/* --- Noms des villes : JAUNE ET SOULIGNÉ --- */
+/* --- Noms des villes - City Names --- */
 .image-item span {
     display: block;
     margin-top: 15px;
@@ -93,7 +93,7 @@ h1 {
     text-decoration-thickness: 2px;
 
 
-    /* --- Bloc des règles en bas --- */
+/* --- Bloc des règles en bas - Rules Block at Bottom --- */
 #rules-bottom {
     background: rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(5px);
@@ -121,7 +121,7 @@ h1 {
     line-height: 1.5;
 }
 
-/* On fait ressortir les violettes avec une couleur mauve */
+/* On fait ressortir les violettes avec une couleur mauve - Highlight violets with a mauve color */
 .rules-content strong {
     color: #e0b0ff; 
     border-bottom: 1px solid #e0b0ff;
