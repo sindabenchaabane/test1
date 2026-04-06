@@ -281,11 +281,11 @@ function movePerso(e) {
         violetteActive = true;
     }
 
-        // Bombe - 15% chance for a bomb if there isn't one alr
-    if (!bombeActive && !violetteActive && Math.random() < 0.15) {
+        // Bombe - 30% chance for a bomb if there isn't one alr
+    if (!bombeActive && Math.random() < 0.30) {
         bombe = {
-            x:      boardWidth,
-            y:      boardHeight - 275 - Math.random() * 100, // Même zone que la Violette
+            x:      boardWidth + 100 + Math.random() * 150, // Décalée APRÈS l'obstacle actuel
+            y:      boardHeight - bombeHeight,               // Posée sur le sol
             width:  bombeWidth,
             height: bombeHeight
         };
