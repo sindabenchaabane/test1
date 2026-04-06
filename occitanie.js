@@ -33,6 +33,13 @@ let violette = null;
 let violetteActive = false;
 let shieldCount = 0; // Tes esquives
 
+//bombe
+let bombeImg    = new Image(); bombeImg.src = "./img/bombe.png";
+let bombeWidth  = 60;
+let bombeHeight = 60;
+let bombe       = null;
+let bombeActive = false;
+
 // Physics & Game State
 let velocityX = -8;
 let velocityY = 0;
@@ -50,7 +57,7 @@ window.onload = function() {
     context = board.getContext("2d");
 
     requestAnimationFrame(update);
-    setInterval(placeobstacle, 1500);
+    setInterval(placeObstacle, 1500);
     setInterval(changePersoImg1, 100);
     document.addEventListener("keydown", movePerso);
 }
@@ -68,8 +75,33 @@ if (savedBg) {
     backgroundImg.src = "./img/tls.png"; 
 }
 
+
 let bgX = 0;
 let bgSpeed = 2; // Background scroll speed
+
+//function bombe
+function drawBombe(x, y, w, h) {
+    let cx = x + w / 2;
+    let cy = y + h / 2;
+    let r  = w / 2 - 4;
+    let gradient = context.createRadialGradient(cx - r*0.3, cy - r*0.3, 2, cx, cy, r);
+    gradient.addColorStop(0, "#555");
+    gradient.addColorStop(1, "#111");
+    context.beginPath();
+    context.arc(cx, cy, r, 0, Math.PI * 2);
+    context.fillStyle = gradient;
+    context.fill();
+    context.beginPath();
+    context.moveTo(cx + r*0.6, cy - r*0.6);
+    context.quadraticCurveTo(cx + r, cy - r*1.4, cx + r*0.3, cy - r*1.6);
+    context.strokeStyle = "#cc6600";
+    context.lineWidth   = 3;
+    context.stroke();
+    context.beginPath();
+    context.arc(cx + r*0.3, cy - r*1.6, 4, 0, Math.PI * 2);
+    context.fillStyle = "#FFD700";
+    context.fill();
+}
 
 function update() {
     if (gameOver) {
@@ -141,13 +173,31 @@ function update() {
     }
 
 
-    // 3. Perso & Physique
+    // 3. Bombe
+    if (bombeActive && bombe) {
+        bombe.x += velocityX;
+        if (bombeImg.complete && bombeImg.naturalWidth > 0) {
+            context.drawImage(bombeImg, bombe.x, bombe.y, bombeWidth, bombeHeight);
+        } else {
+            drawBombe(bombe.x, bombe.y, bombeWidth, bombeHeight);
+        }
+        if (detectCollision(perso, bombe)) {
+            gameOver = true;
+        }
+        if (bombe.x + bombeWidth < 0) {
+            bombeActive = false;
+            bombe       = null;
+        }
+    }
+
+
+    // 4. Perso & Physique
     velocityY += gravity;
     perso.y = Math.min(perso.y + velocityY, boardHeight - persoHeight);
     context.drawImage(currentPersoImg, perso.x, perso.y, perso.width, perso.height);
 
 
-    // 4. UI & Score
+    // 5. UI & Score
     score++;
     if ((score % 200 == 0) && (score <= 5000)) velocityX -= 1;
 
@@ -185,65 +235,76 @@ function update() {
 
 // ----- Game functions -----
 
-    function movePerso(e) {
-        if (gameOver) { location.reload(); return; }
-        if ((e.code == "Space" || e.code == "ArrowUp") && perso.y >= boardHeight - persoHeight) {
-            velocityY = -10;
-        }
+function movePerso(e) {
+    if (gameOver) { location.reload(); return; }
+    if ((e.code == "Space" || e.code == "ArrowUp") && perso.y >= boardHeight - persoHeight) {
+        velocityY = -10;
     }
+}
 
-    function placeobstacle() {
-        if (gameOver) return;
+    function placeObstacle() {
+    if (gameOver) return;
 
-        let r = Math.random();
-        
+    let r = Math.random();
+    
         // Obstacle sizes and spawning probabilities
-        let chateauSize = 105; 
-        let swordSize = 110;   
-        let pontWidth = 100;
-        let pontHeight = 120;
+    let chateauSize = 105; 
+    let swordSize = 110;   
+    let pontWidth = 100;
+    let pontHeight = 120;
 
-        let ob = { x: boardWidth, width: chateauSize, height: chateauSize, y: boardHeight - chateauSize };
+    let ob = { x: boardWidth, width: chateauSize, height: chateauSize, y: boardHeight - chateauSize };
 
         if (r > 0.70) { // 30% chance for the bridge (0.70 to 1.0)
-            ob.img = pontImg; 
-            ob.width = pontWidth; ob.height = pontHeight; ob.y = boardHeight - pontHeight;
-        } 
+        ob.img = pontImg; 
+        ob.width = pontWidth; ob.height = pontHeight; ob.y = boardHeight - pontHeight;
+    } 
         else if (r > 0.40) { // 30% chance for the sword (0.40 to 0.70)
-            ob.img = swordImg; 
-            ob.width = swordSize; ob.height = swordSize; ob.y = boardHeight - swordSize;
-        } 
+        ob.img = swordImg; 
+        ob.width = swordSize; ob.height = swordSize; ob.y = boardHeight - swordSize;
+    } 
         else if (r > 0.10) { // 30% chance for the castle (0.10 to 0.40)
-            ob.img = chateauImg; 
+        ob.img = chateauImg; 
             // Note: ob a déjà les dimensions du château par défaut dans ton code - obstacle size is alr set to castle dimensions by default 
-        } 
-        else { 
+    } 
+    else { 
             // Only 10% chance (if r < 0.10) that nothing happens
-            return; 
-        }
+        return; 
+    }
 
-        obstacleArray.push(ob);
-        if (obstacleArray.length > 7) obstacleArray.shift();
+    obstacleArray.push(ob);
+    if (obstacleArray.length > 7) obstacleArray.shift();
 
         // Violette (bonus addition)- 20% chance for a violet if there isn't one alr
-        if (!violetteActive && Math.random() < 0.20) {
-            violette = { x: boardWidth, y: boardHeight - 275 - Math.random() * 100, width: 70, height: 70 };
-            violetteActive = true;
-        }
+    if (!violetteActive && Math.random() < 0.20) {
+        violette = { x: boardWidth, y: boardHeight - 275 - Math.random() * 100, width: 70, height: 70 };
+        violetteActive = true;
     }
 
-    function changePersoImg1() {
-        if (gameOver) return;
-        if (perso.y >= boardHeight - persoHeight) {
-            persoIndex = (persoIndex + 1) % persoArray.length;
-            currentPersoImg = persoArray[persoIndex];
-        } else {
-            currentPersoImg = persoArray[0];
-        }
+        // Bombe - 15% chance for a bomb if there isn't one alr
+    if (!bombeActive && !violetteActive && Math.random() < 0.15) {
+        bombe = {
+            x:      boardWidth,
+            y:      boardHeight - 275 - Math.random() * 100, // Même zone que la Violette
+            width:  bombeWidth,
+            height: bombeHeight
+        };
+        bombeActive = true;
     }
+}
 
-    function detectCollision(a, b) {
-        let p = 10;
-        return a.x + p < b.x + b.width - p && a.x + a.width - p > b.x + p &&
-            a.y + p < b.y + b.height - p && a.y + a.height - p > b.y + p;
+function changePersoImg1() {
+    if (gameOver) return;
+    if (perso.y >= boardHeight - persoHeight) {
+        persoIndex = (persoIndex + 1) % persoArray.length;
+        currentPersoImg = persoArray[persoIndex];
+    } else {
+        currentPersoImg = persoArray[0];
     }
+}
+
+function detectCollision(a, b) {
+    let p = 10;
+    return a.x + p < b.x + b.width - p && a.x + a.width - p > b.x + p &&
+           a.y + p < b.y + b.height - p && a.y + a.height - p > b.y + p;
+}
